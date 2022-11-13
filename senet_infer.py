@@ -1,10 +1,10 @@
 from model import *
 from data_import import *
-
 import sys, getopt
 
 valfolder = "dataset/valset_noisy"
 modfolder = "models"
+tf.compat.v1.disable_eager_execution()
 
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hd:m:",["ifolder=,modelfolder="])
@@ -37,9 +37,9 @@ SE_NORM = "NM" # TYPE OF LAYER NORMALIZATION (NM, SBN or None)
 fs = 16000
 
 # SET LOSS FUNCTIONS AND PLACEHOLDERS
-with tf.variable_scope(tf.get_variable_scope()):
-    input=tf.placeholder(tf.float32,shape=[None,1,None,1])
-    clean=tf.placeholder(tf.float32,shape=[None,1,None,1])
+with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope()):
+    input=tf.compat.v1.placeholder(tf.float32,shape=[None,1,None,1])
+    clean=tf.compat.v1.placeholder(tf.float32,shape=[None,1,None,1])
         
     enhanced=senet(input, n_layers=SE_LAYERS, norm_type=SE_NORM, n_channels=SE_CHANNELS)
 
@@ -50,17 +50,17 @@ valset = load_noisy_data(valset)
 # BEGIN SCRIPT #########################################################################################################
 
 # INITIALIZE GPU CONFIG
-config=tf.ConfigProto()
+config=tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth=True
-sess=tf.Session(config=config)
+sess=tf.compat.v1.Session(config=config)
 
 print("Config ready")
 
-sess.run(tf.global_variables_initializer())
+sess.run(tf.compat.v1.global_variables_initializer())
 
 print("Session initialized")
 
-saver = tf.train.Saver([var for var in tf.trainable_variables() if var.name.startswith("se_")])
+saver = tf.compat.v1.train.Saver([var for var in tf.compat.v1.trainable_variables() if var.name.startswith("se_")])
 saver.restore(sess, "./%s/se_model.ckpt" % modfolder)
 
 #####################################################################################
